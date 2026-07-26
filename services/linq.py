@@ -22,15 +22,27 @@ LINQ_API_BASE = os.getenv(
 
 
 class LinqError(RuntimeError):
-    pass
+    def __init__(self, message: str, *, status_code: int | None = None) -> None:
+        super().__init__(message)
+        self.status_code = status_code
 
 
 def _api_key() -> str | None:
     return os.getenv("LINQ_API_KEY") or os.getenv("LINQ_API_V3_API_KEY")
 
 
+def from_number() -> str | None:
+    """The Linq line outbound messages originate from (E.164)."""
+    return os.getenv("LINQ_FROM_NUMBER") or os.getenv("LINQ_PHONE_NUMBER")
+
+
 def is_configured() -> bool:
     return bool(_api_key())
+
+
+def can_send_outbound() -> bool:
+    """Outbound-first sends also need a `from` line, unlike replies to a chat."""
+    return bool(_api_key() and from_number())
 
 
 def verify_webhook_signature(
@@ -124,34 +136,71 @@ def extract_inbound_text(payload: dict[str, Any]) -> dict[str, str | None] | Non
     }
 
 
-async def send_chat_message(chat_id: str, text: str) -> dict[str, Any]:
-    """Send a text reply into an existing Linq chat."""
+async def _post(path: str, payload: dict[str, Any]) -> dict[str, Any]:
     api_key = _api_key()
     if not api_key:
         raise LinqError("LINQ_API_KEY is not set — cannot send outbound message.")
 
-    url = f"{LINQ_API_BASE}/chats/{chat_id}/messages"
-    payload = {
-        "message": {
-            "parts": [
-                {"type": "text", "value": text},
-            ]
-        }
-    }
     headers = {
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json",
     }
 
     async with httpx.AsyncClient(timeout=30.0) as client:
-        response = await client.post(url, json=payload, headers=headers)
+        response = await client.post(
+            f"{LINQ_API_BASE}{path}", json=payload, headers=headers
+        )
         if response.status_code >= 400:
             logger.error(
-                "Linq send failed (%s): %s",
+                "Linq POST %s failed (%s): %s",
+                path,
                 response.status_code,
                 response.text,
             )
             raise LinqError(
-                f"Linq API error {response.status_code}: {response.text[:300]}"
+                f"Linq API error {response.status_code}: {response.text[:300]}",
+                status_code=response.status_code,
             )
+        if not response.content:
+            return {}
         return response.json()
+
+
+def _text_message(text: str) -> dict[str, Any]:
+    return {"parts": [{"type": "text", "value": text}]}
+
+
+async def send_chat_message(chat_id: str, text: str) -> dict[str, Any]:
+    """Send a text reply into an existing Linq chat."""
+    return await _post(f"/chats/{chat_id}/messages", {"message": _text_message(text)})
+
+
+async def send_text_to_number(
+    phone: str,
+    text: str,
+    *,
+    preferred_service: str | None = None,
+    idempotency_key: str | None = None,
+) -> dict[str, Any]:
+    """Start a chat with `phone` and send `text` — used for outbound-first messages.
+
+    Unlike send_chat_message this does not need an existing chat id, so it is the
+    path used for verification codes. `phone` must be E.164 (e.g. +12223334444).
+    """
+    sender = from_number()
+    if not sender:
+        raise LinqError(
+            "LINQ_FROM_NUMBER is not set — cannot start an outbound conversation."
+        )
+
+    payload: dict[str, Any] = {
+        "from": sender,
+        "to": [phone],
+        "message": _text_message(text),
+    }
+    if preferred_service:
+        payload["preferred_service"] = preferred_service
+    if idempotency_key:
+        payload["idempotency_key"] = idempotency_key
+
+    return await _post("/chats", payload)
