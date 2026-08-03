@@ -1,0 +1,128 @@
+{
+  "session_counter": 0,
+  "word_bank": {
+    "perro": {
+      "translation": "dog",
+      "part_of_speech": "noun",
+      "example_es": "El perro corre en el parque.",
+      "example_en": "The dog runs in the park."
+    },
+    "gato": {
+      "translation": "cat",
+      "part_of_speech": "noun",
+      "example_es": "El gato duerme en el sofá.",
+      "example_en": "The cat sleeps on the sofa."
+    },
+    "casa": {
+      "translation": "house",
+      "part_of_speech": "noun",
+      "example_es": "Mi casa es pequeña.",
+      "example_en": "My house is small."
+    },
+    "comer": {
+      "translation": "to eat",
+      "part_of_speech": "verb",
+      "example_es": "Me gusta comer fruta.",
+      "example_en": "I like to eat fruit."
+    },
+    "hablar": {
+      "translation": "to speak",
+      "part_of_speech": "verb",
+      "example_es": "Quiero hablar español.",
+      "example_en": "I want to speak Spanish."
+    },
+    "hola": {
+      "translation": "hello",
+      "part_of_speech": "interjection",
+      "example_es": "¡Hola! ¿Cómo estás?",
+      "example_en": "Hello! How are you?"
+    },
+    "gracias": {
+      "translation": "thank you",
+      "part_of_speech": "interjection",
+      "example_es": "¡Muchas gracias!",
+      "example_en": "Thank you very much!"
+    },
+    "agua": {
+      "translation": "water",
+      "part_of_speech": "noun",
+      "example_es": "Quiero un vaso de agua.",
+      "example_en": "I want a glass of water."
+    },
+    "amigo": {
+      "translation": "friend",
+      "part_of_speech": "noun",
+      "example_es": "Él es mi amigo.",
+      "example_en": "He is my friend."
+    },
+    "aprender": {
+      "translation": "to learn",
+      "part_of_speech": "verb",
+      "example_es": "Me gusta aprender español.",
+      "example_en": "I like to learn Spanish."
+    }
+  },
+  "profile": {
+    "user_id": "test",
+    "display_name": "Sam",
+    "spanish_level": "beginner",
+    "phone": null,
+    "created_at": "2026-08-03T00:00:00+00:00"
+  },
+  "dictionary": [
+    {
+      "word": "hola",
+      "translation": "hello",
+      "notes": null,
+      "created_at": "2026-08-03T00:00:00+00:00"
+    },
+    {
+      "word": "gracias",
+      "translation": "thank you",
+      "notes": null,
+      "created_at": "2026-08-03T00:00:00+00:00"
+    },
+    {
+      "word": "agua",
+      "translation": "water",
+      "notes": null,
+      "created_at": "2026-08-03T00:00:00+00:00"
+    },
+    {
+      "word": "amigo",
+      "translation": "friend",
+      "notes": null,
+      "created_at": "2026-08-03T00:00:00+00:00"
+    },
+    {
+      "word": "aprender",
+      "translation": "to learn",
+      "notes": null,
+      "created_at": "2026-08-03T00:00:00+00:00"
+    },
+    {
+      "word": "perro",
+      "translation": "dog",
+      "notes": null,
+      "created_at": "2026-08-03T05:45:04.399207+00:00"
+    }
+  ],
+  "progress": {
+    "words_known": 13,
+    "words_learning": 6,
+    "streak_days": 3,
+    "total_practice_minutes": 45,
+    "last_practice_at": null
+  },
+  "sessions": [],
+  "messages": [
+    {
+      "role": "user",
+      "content": "hi"
+    },
+    {
+      "role": "assistant",
+      "content": "hola!"
+    }
+  ]
+}

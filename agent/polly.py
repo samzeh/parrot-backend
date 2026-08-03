@@ -8,17 +8,20 @@ from agent.prompts import POLLY_SYSTEM_PROMPT, build_user_context
 from agent.tools import build_tools_for_user
 from services import memory, parrot_client, parrot_data
 from services.gemini import GeminiError, generate_with_tools
+from services.parrot_data import TEST_USER_ID
 
 logger = logging.getLogger(__name__)
 
 
-def handle_message(user_id: str, message: str, *, phone: str | None = None) -> str:
-    """Process one user message and return Polly's reply text."""
+def handle_message(_user_id: str | None, message: str, *, phone: str | None = None) -> str:
+    """Process one message for the single test learner in data/user.json."""
     cleaned = (message or "").strip()
     if not cleaned:
         return "I didn't catch that — send me a message and I'll help you learn Spanish!"
 
-    parrot_data.ensure_user(user_id, phone=phone)
+    user_id = TEST_USER_ID
+    if phone:
+        parrot_data.update_user(user_id, phone=phone)
 
     profile = parrot_client.get_user_profile(user_id)
     recent = parrot_client.get_learning_words(user_id, limit=8).get("words", [])

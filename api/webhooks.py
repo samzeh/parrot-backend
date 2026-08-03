@@ -20,9 +20,9 @@ router = APIRouter(tags=["linq"])
 
 
 async def _process_linq_inbound(chat_id: str, phone: str | None, text: str) -> None:
-    user_id = phone or f"chat:{chat_id}"
+    # Single test user — phone is stored on the profile but does not create a new user.
     try:
-        reply = handle_message(user_id, text, phone=phone)
+        reply = handle_message("test", text, phone=phone)
         if linq_is_configured():
             await send_chat_message(chat_id, reply)
         else:

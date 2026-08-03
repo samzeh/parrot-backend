@@ -1,28 +1,28 @@
-"""In-memory conversation history for Polly.
-
-For the prototype this is enough — history lives for the life of the process.
-Swap to Supabase/Postgres later only if you need persistence across restarts.
-"""
+"""Conversation history for the single test user (data/user.json)."""
 
 from __future__ import annotations
 
-from collections import defaultdict
+from typing import Any
 
-# user_id -> list of {role, content}
-_history: dict[str, list[dict[str, str]]] = defaultdict(list)
-
-
-def get_history(user_id: str, limit: int = 20) -> list[dict[str, str]]:
-    messages = _history[user_id]
-    return list(messages[-limit:])
+from services import json_store
 
 
-def append_message(user_id: str, role: str, content: str) -> None:
-    _history[user_id].append({"role": role, "content": content})
+def get_history(_user_id: str | None = None, limit: int = 20) -> list[dict[str, str]]:
+    store = json_store.load()
+    messages: list[dict[str, Any]] = store.get("messages", [])
+    return [
+        {"role": m["role"], "content": m["content"]}
+        for m in messages[-limit:]
+    ]
 
 
-def clear_history(user_id: str | None = None) -> None:
-    if user_id is None:
-        _history.clear()
-    else:
-        _history.pop(user_id, None)
+def append_message(_user_id: str | None = None, role: str = "", content: str = "") -> None:
+    store = json_store.load()
+    store.setdefault("messages", []).append({"role": role, "content": content})
+    json_store.save(store)
+
+
+def clear_history(_user_id: str | None = None) -> None:
+    store = json_store.load()
+    store["messages"] = []
+    json_store.save(store)
